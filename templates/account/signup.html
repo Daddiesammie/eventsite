@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% load i18n %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 animate-fadeIn">
+    <div class="max-w-md mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Create Your Account</h1>
+            <p class="mt-2 text-gray-600">Join us to start creating and managing events</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 animate-slideUp">
+            <form class="signup space-y-6" id="signup_form" method="post" action="{% url 'account_signup' %}">
+                {% csrf_token %}
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" name="username" class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" name="password1" class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                    <input type="password" name="password2" class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300">
+                    Create Account
+                </button>
+            </form>
+
+            {% get_providers as socialaccount_providers %}
+            {% if socialaccount_providers %}
+            <div class="mt-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-2 gap-3">
+                    {% for provider in socialaccount_providers %}
+                    <a href="{% provider_login_url provider.id %}" 
+                       class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i class="fab fa-{{ provider.id }} mr-2"></i>
+                        {{ provider.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <p class="mt-4 text-center text-sm text-gray-600">
+            Already have an account?
+            <a href="{% url 'account_login' %}" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-slideUp {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out;
+    }
+</style>
+{% endblock %}

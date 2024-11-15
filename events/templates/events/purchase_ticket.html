@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-2">Purchase Tickets</h2>
+        <p class="text-gray-600">{{ ticket.event.title }}</p>
+    </div>
+
+    <div class="bg-gray-50 p-6 rounded-lg mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">{{ ticket.name }}</h3>
+            <span class="text-2xl font-bold">${{ ticket.price }}</span>
+        </div>
+        <p class="text-gray-600 mb-2">{{ ticket.description }}</p>
+        <p class="text-sm text-gray-500">Available: {{ ticket.available_quantity }}</p>
+    </div>
+
+    <form id="paymentForm" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">
+                Number of Tickets
+            </label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ form.quantity.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="border-t pt-6">
+            <div class="flex justify-between items-center mb-4">
+                <span class="font-semibold">Total Price:</span>
+                <span class="text-2xl font-bold" id="totalPrice">$0.00</span>
+            </div>
+            
+            <button type="button" 
+                    onclick="payWithPaystack()"
+                    class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center">
+                <span>Pay with Paystack</span>
+                <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<script>
+let totalAmount = 0;
+
+document.getElementById('id_quantity').addEventListener('input', function(e) {
+    const quantity = parseInt(e.target.value) || 0;
+    const price = {{ ticket.price }};
+    totalAmount = quantity * price;
+    document.getElementById('totalPrice').textContent = `$${totalAmount.toFixed(2)}`;
+});
+
+function payWithPaystack() {
+    const quantity = document.getElementById('id_quantity').value;
+    if (!quantity || quantity < 1) {
+        alert('Please select the number of tickets');
+        return;
+    }
+
+    const handler = PaystackPop.setup({
+        key: '{{ paystack_public_key }}', // Will be provided from your view
+        email: '{{ request.user.email }}',
+        amount: totalAmount * 100, // Convert to lowest currency unit
+        currency: 'NGN',
+        ref: '{{ payment_reference }}', // Will be provided from your view
+        callback: function(response) {
+            // Submit form with payment reference
+            document.getElementById('paymentForm').action = "{% url 'events:payment_callback' %}";
+            document.getElementById('paymentForm').method = 'post';
+            const referenceInput = document.createElement('input');
+            referenceInput.type = 'hidden';
+            referenceInput.name = 'payment_reference';
+            referenceInput.value = response.reference;
+            document.getElementById('paymentForm').appendChild(referenceInput);
+            document.getElementById('paymentForm').submit();
+        },
+        onClose: function() {
+            alert('Transaction was not completed, window closed.');
+        }
+    });
+    handler.openIframe();
+}
+</script>
+{% endblock %}

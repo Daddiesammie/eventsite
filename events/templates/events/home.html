@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="relative bg-gradient-to-r from-blue-600 to-indigo-700 py-20 mb-16">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative container mx-auto text-center px-4">
+        <h1 class="text-5xl font-bold text-white mb-6">Discover Extraordinary Events</h1>
+        <p class="text-xl text-gray-200 mb-12">Your gateway to unforgettable experiences and memorable moments</p>
+        
+        <div class="flex justify-center gap-6">
+            {% if user.is_authenticated %}
+                <a href="{% url 'events:event_create' %}" 
+                   class="bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition duration-300 font-semibold flex items-center">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Create Event
+                </a>
+            {% endif %}
+            <a href="{% url 'events:event_list' %}" 
+               class="bg-transparent border-2 border-white text-white px-8 py-4 rounded-lg hover:bg-white hover:text-blue-600 transition duration-300 font-semibold flex items-center">
+                <i class="fas fa-search mr-2"></i>
+                Explore Events
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Categories -->
+<section class="mb-20">
+    <h2 class="text-3xl font-bold text-center mb-12">Popular Categories</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 px-4">
+        <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition duration-300">
+            <i class="fas fa-music text-4xl text-blue-500 mb-4"></i>
+            <h3 class="font-semibold mb-2">Concerts</h3>
+            <p class="text-gray-600">Live music experiences</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition duration-300">
+            <i class="fas fa-graduation-cap text-4xl text-green-500 mb-4"></i>
+            <h3 class="font-semibold mb-2">Workshops</h3>
+            <p class="text-gray-600">Learn and grow</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition duration-300">
+            <i class="fas fa-theater-masks text-4xl text-purple-500 mb-4"></i>
+            <h3 class="font-semibold mb-2">Theater</h3>
+            <p class="text-gray-600">Drama and performances</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-lg transition duration-300">
+            <i class="fas fa-running text-4xl text-red-500 mb-4"></i>
+            <h3 class="font-semibold mb-2">Sports</h3>
+            <p class="text-gray-600">Athletic events</p>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="bg-gray-50 py-16 mb-20">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div class="text-center">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-search text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="font-semibold mb-4">Find Events</h3>
+                <p class="text-gray-600">Discover events that match your interests</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-ticket-alt text-2xl text-green-600"></i>
+                </div>
+                <h3 class="font-semibold mb-4">Book Tickets</h3>
+                <p class="text-gray-600">Secure your spot with easy booking</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-star text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="font-semibold mb-4">Enjoy Events</h3>
+                <p class="text-gray-600">Create lasting memories</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Upcoming Events Preview -->
+<section class="mb-20">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold">Trending Events</h2>
+            <a href="{% url 'events:event_list' %}" class="text-blue-600 hover:text-blue-800 font-semibold flex items-center">
+                View All <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+        <!-- Add your event preview cards here -->
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-gradient-to-r from-purple-600 to-blue-600 py-16 mb-20">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold text-white mb-6">Ready to Host Your Event?</h2>
+        <p class="text-xl text-gray-200 mb-8">Join thousands of successful event organizers on our platform</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'events:event_create' %}" class="bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition duration-300 font-semibold inline-flex items-center">
+                <i class="fas fa-calendar-plus mr-2"></i>
+                Start Creating
+            </a>
+        {% else %}
+            <a href="{% url 'account_signup' %}" class="bg-white text-blue-600 px-8 py-4 rounded-lg hover:bg-gray-100 transition duration-300 font-semibold inline-flex items-center">
+                <i class="fas fa-user-plus mr-2"></i>
+                Get Started
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

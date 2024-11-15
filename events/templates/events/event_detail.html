@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8 animate-fadeIn">
+    <!-- Event Header -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8 transform hover:scale-[1.02] transition-transform duration-300">
+        {% if event.image %}
+        <div class="relative h-[500px]">
+            <img src="{{ event.image.url }}" 
+                 alt="{{ event.title }}" 
+                 class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
+                <h1 class="text-4xl font-bold mb-3">{{ event.title }}</h1>
+                <div class="flex items-center space-x-4">
+                    <img src="{{ event.organizer.profile_image|default:'https://via.placeholder.com/40' }}" 
+                         class="w-10 h-10 rounded-full border-2 border-white">
+                    <span>Organized by {{ event.organizer.get_full_name|default:event.organizer.username }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Event Status -->
+            <div class="flex items-center space-x-4 animate-slideInLeft">
+                <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium 
+                    {% if event.status == 'approved' %}bg-green-100 text-green-800
+                    {% elif event.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    <i class="fas fa-circle text-xs mr-2"></i>
+                    {{ event.status|title }}
+                </span>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="far fa-calendar"></i>
+                    <span>{{ event.date|date:"F d, Y" }}</span>
+                </div>
+                <div class="flex items-center space-x-2 text-gray-600">
+                    <i class="far fa-clock"></i>
+                    <span>{{ event.date|date:"g:i A" }}</span>
+                </div>
+            </div>
+
+            <!-- Event Description -->
+            <div class="bg-white rounded-xl p-8 shadow-md hover:shadow-lg transition-shadow duration-300 animate-slideInLeft">
+                <h2 class="text-2xl font-bold mb-6 flex items-center">
+                    <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                    About This Event
+                </h2>
+                <div class="prose max-w-none text-gray-700">
+                    {{ event.description|linebreaks }}
+                </div>
+            </div>
+
+            <!-- Tickets Section -->
+            <div class="space-y-6 animate-slideInLeft">
+                <h2 class="text-2xl font-bold flex items-center">
+                    <i class="fas fa-ticket-alt text-blue-500 mr-3"></i>
+                    Available Tickets
+                </h2>
+                
+                {% for ticket in event.tickets.all %}
+                <div class="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex justify-between items-start">
+                        <div class="space-y-3">
+                            <h3 class="text-xl font-bold text-gray-900">{{ ticket.name }}</h3>
+                            <p class="text-gray-600">{{ ticket.description }}</p>
+                            <div class="flex items-center space-x-4">
+                                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                    {{ ticket.available_quantity }} remaining
+                                </span>
+                                <span class="text-2xl font-bold text-gray-900">${{ ticket.price }}</span>
+                            </div>
+                        </div>
+
+                        {% if ticket.available_quantity > 0 %}
+                        <form method="post" action="{% url 'events:purchase_ticket' ticket.id %}" 
+                              class="space-y-4">
+                            {% csrf_token %}
+                            <div class="flex items-center space-x-3">
+                                <input type="number" 
+                                       name="quantity" 
+                                       min="1" 
+                                       max="{{ ticket.available_quantity }}" 
+                                       value="1"
+                                       class="w-20 rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                                <span class="text-gray-600">tickets</span>
+                            </div>
+                            <button type="submit" 
+                                    class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2">
+                                <span>Purchase Now</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="inline-block bg-gray-100 text-gray-600 px-6 py-3 rounded-lg">
+                            Sold Out
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+                    <i class="fas fa-ticket-alt text-4xl text-gray-400 mb-4"></i>
+                    <p class="text-gray-500 mb-4">No tickets available for this event yet.</p>
+                    {% if user == event.organizer %}
+                    <a href="{% url 'events:ticket_create' event.pk %}" 
+                       class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add Tickets
+                    </a>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 animate-slideInRight">
+            <div class="bg-white rounded-xl shadow-md p-6 sticky top-24">
+                <h3 class="text-xl font-bold mb-6">Event Details</h3>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-map-marker-alt text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Location</p>
+                            <p class="font-medium">{{ event.location }}</p>
+                        </div>
+                    </div>
+
+                    {% if event.organizer == user %}
+                    <a href="{% url 'events:ticket_create' event.pk %}" 
+                       class="block w-full bg-green-600 text-white text-center py-3 px-4 rounded-lg hover:bg-green-700 transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Add Tickets
+                    </a>
+                    {% endif %}
+
+                    <div class="flex space-x-3">
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-300">
+                            <i class="fas fa-share-alt mr-2"></i>
+                            Share
+                        </button>
+                        <button class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors duration-300">
+                            <i class="far fa-bookmark mr-2"></i>
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add these styles to your head or in a separate CSS file -->
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    @keyframes slideInLeft {
+        from { transform: translateX(-100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideInRight {
+        from { transform: translateX(100px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out;
+    }
+    
+    .animate-slideInLeft {
+        animation: slideInLeft 0.8s ease-out;
+    }
+    
+    .animate-slideInRight {
+        animation: slideInRight 0.8s ease-out;
+    }
+</style>
+
+<!-- Paystack Script -->
+<script src="https://js.paystack.co/v1/inline.js"></script>
+{% endblock %}

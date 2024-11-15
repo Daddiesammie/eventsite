@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
+    <h2 class="text-2xl font-bold mb-6">Create Ticket Type</h2>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            {{ field.errors }}
+            {{ field }}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+            Create Ticket
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12 animate-fadeIn">
+    <div class="max-w-3xl mx-auto">
+        <!-- Form Header -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900">Create Your Event</h2>
+            <p class="mt-2 text-gray-600">Fill in the details to create your amazing event</p>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 animate-slideUp">
+            <div class="flex items-center mb-8 pb-4 border-b border-gray-200">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <i class="fas fa-calendar-plus text-blue-600"></i>
+                </div>
+                <h3 class="ml-4 text-xl font-semibold text-gray-800">Event Details</h3>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                <div class="space-y-2 animate-slideIn" style="animation-delay: {{ forloop.counter|multiply:100 }}ms">
+                    <label class="block text-sm font-medium text-gray-700">
+                        {{ field.label }}
+                        {% if field.field.required %}
+                            <span class="text-red-500">*</span>
+                        {% endif %}
+                    </label>
+                    
+                    {% if field.errors %}
+                    <div class="text-red-500 text-sm mb-2">
+                        {{ field.errors }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if field.name == 'image' %}
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-500 transition-colors duration-300">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400"></i>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="{{ field.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                                    <span>Upload event image</span>
+                                    {{ field }}
+                                </label>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                    </div>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                    
+                    {% if field.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="pt-6 animate-slideIn" style="animation-delay: 800ms">
+                    <button type="submit" 
+                            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center justify-center">
+                        <i class="fas fa-calendar-plus mr-2"></i>
+                        Create Event
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Card -->
+        <div class="mt-8 bg-blue-50 rounded-xl p-6 animate-slideUp" style="animation-delay: 400ms">
+            <h4 class="text-lg font-semibold text-blue-800 mb-3">Tips for Creating a Great Event</h4>
+            <ul class="space-y-2 text-blue-700">
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Provide a clear, descriptive title
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Add high-quality images to attract attention
+                </li>
+                <li class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Include all important event details
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom form styling */
+    input[type="text"],
+    input[type="datetime-local"],
+    input[type="number"],
+    textarea,
+    select {
+        @apply w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 transition-colors duration-300;
+    }
+    
+    textarea {
+        @apply h-32;
+    }
+    
+    /* Animations */
+    @keyframes slideUp {
+        from { transform: translateY(20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .animate-slideUp {
+        animation: slideUp 0.6s ease-out forwards;
+    }
+    
+    .animate-slideIn {
+        animation: slideIn 0.6s ease-out forwards;
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out;
+    }
+</style>
+{% endblock %}
