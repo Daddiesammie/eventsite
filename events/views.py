@@ -1,5 +1,8 @@
+from django.http import JsonResponse
 from django.utils import timezone
 from django.db.models import Sum
+from django.views.generic.edit import UpdateView
+
 
 import uuid
 from django.views.generic import (
@@ -10,8 +13,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from .models import Event, Ticket, Purchase
-from .forms import EventForm, PurchaseTicketForm, TicketForm
+from .models import Bookmark, Event, Profile, Ticket, Purchase
+from .forms import EventForm, ProfileForm, PurchaseTicketForm, TicketForm
 from .utils import initialize_payment, verify_payment
 from .utils import initialize_payment, verify_payment, send_ticket_email  # Add send_ticket_email here
 
@@ -174,3 +177,52 @@ class MyTicketsView(LoginRequiredMixin, ListView):
             ).aggregate(Sum('total_price'))['total_price__sum'] or 0
         })
         return context
+
+class ProfileView(LoginRequiredMixin, UpdateView):
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'events/profile.html'
+    success_url = reverse_lazy('events:profile')
+
+    def get_object(self):
+        return Profile.objects.get_or_create(user=self.request.user)[0]
+
+class BookmarkView(LoginRequiredMixin, View):
+    def post(self, request, event_id):
+        event = get_object_or_404(Event, id=event_id)
+        bookmark, created = Bookmark.objects.get_or_create(
+            user=request.user,
+            event=event
+        )
+        
+        if not created:
+            bookmark.delete()
+            return JsonResponse({
+                'status': 'removed',
+                'icon': 'far fa-bookmark',
+                'text': 'Save',
+                'message': 'Event removed from bookmarks'
+            })
+            
+        return JsonResponse({
+            'status': 'added',
+            'icon': 'fas fa-bookmark',
+            'text': 'Saved',
+            'message': 'Event added to bookmarks'
+        })
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_bookmarked'] = Bookmark.objects.filter(
+            user=self.request.user,
+            event=self.get_object()
+        ).exists()
+        return context
+
+
+class BookmarkedEventsView(LoginRequiredMixin, ListView):
+    template_name = 'events/bookmarked_events.html'
+    context_object_name = 'bookmarks'
+
+    def get_queryset(self):
+        return Bookmark.objects.filter(user=self.request.user).select_related('event')

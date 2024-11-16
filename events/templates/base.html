@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,13 +141,6 @@
         .nav-link:hover::after {
             width: 100%;
         }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .desktop-menu {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
@@ -170,13 +164,13 @@
                         <a href="{% url 'events:home' %}" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">Home</a>
                         <a href="{% url 'events:event_list' %}" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">Events</a>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'events:my_tickets' %}" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">My Tickets</a>
+                            <a href="{% url 'events:my_tickets' %}" class="nav-link text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">My Tickets</a>
                         {% endif %}
                     </div>
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <div class="flex md:hidden items-center">
+                <div class="md:hidden flex items-center">
                     <div class="hamburger" onclick="toggleMobileMenu()">
                         <span></span>
                         <span></span>
@@ -188,23 +182,51 @@
                 <!-- Desktop Auth Buttons -->
                 <div class="hidden md:flex items-center space-x-4">
                     {% if user.is_authenticated %}
-                    <div class="flex items-center space-x-3">
-                        <span class="text-sm text-gray-600">Welcome, {{ user.username }}</span>
-                        <a href="{% url 'account_logout' %}" 
-                           class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center space-x-2">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
-                        </a>
-                    </div>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 focus:outline-none">
+                                {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-blue-500">
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white">
+                                        {{ user.username|make_list|first|upper }}
+                                    </div>
+                                {% endif %}
+                                <span class="text-sm text-gray-600">{{ user.username }}</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 w-48 mt-2 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right">
+                                <div class="py-2">
+                                    <a href="{% url 'events:profile' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-user w-5"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                    <a href="{% url 'events:my_tickets' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-ticket-alt w-5"></i>
+                                        <span>My Tickets</span>
+                                    </a>
+                                    <a href="{% url 'events:bookmarked_events' %}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-bookmark w-5"></i>
+                                        <span>Bookmarks</span>
+                                    </a>
+                                    <div class="border-t border-gray-100 my-1"></div>
+                                    <a href="{% url 'account_logout' %}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        <i class="fas fa-sign-out-alt w-5"></i>
+                                        <span>Logout</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     {% else %}
-                    <a href="{% url 'account_login' %}" 
-                       class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
-                        Login
-                    </a>
-                    <a href="{% url 'account_signup' %}" 
-                       class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
-                        Sign Up
-                    </a>
+                        <a href="{% url 'account_login' %}" 
+                           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+                            Login
+                        </a>
+                        <a href="{% url 'account_signup' %}" 
+                           class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-300">
+                            Sign Up
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -217,33 +239,40 @@
             <a href="{% url 'events:home' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Home</a>
             <a href="{% url 'events:event_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">Events</a>
             {% if user.is_authenticated %}
-            <a href="{% url 'events:my_tickets' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">My Tickets</a>
+                <a href="{% url 'events:my_tickets' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">My Tickets</a>
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="px-3 space-y-2">
+                        <a href="{% url 'events:profile' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-user mr-2"></i> Profile
+                        </a>
+                        <a href="{% url 'events:bookmarked_events' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">
+                            <i class="fas fa-bookmark mr-2"></i> Bookmarks
+                        </a>
+                        <a href="{% url 'account_logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-red-500 hover:bg-red-600">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="pt-4 pb-3 border-t border-gray-200">
+                    <div class="px-3 space-y-2">
+                        <a href="{% url 'account_login' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-500 hover:bg-blue-600">Login</a>
+                        <a href="{% url 'account_signup' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-green-500 hover:bg-green-600">Sign Up</a>
+                    </div>
+                </div>
             {% endif %}
-            <div class="pt-4 pb-3 border-t border-gray-200">
-                {% if user.is_authenticated %}
-                <div class="px-3 space-y-2">
-                    <span class="block text-sm font-medium text-gray-500">{{ user.username }}</span>
-                    <a href="{% url 'account_logout' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-red-500 hover:bg-red-600">Logout</a>
-                </div>
-                {% else %}
-                <div class="px-3 space-y-2">
-                    <a href="{% url 'account_login' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-500 hover:bg-blue-600">Login</a>
-                    <a href="{% url 'account_signup' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-green-500 hover:bg-green-600">Sign Up</a>
-                </div>
-                {% endif %}
-            </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-10">
         {% if messages %}
-        {% for message in messages %}
-        <div class="mb-4 rounded-lg p-4 flex items-center {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %}" role="alert">
-            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
-            {{ message }}
-        </div>
-        {% endfor %}
+            {% for message in messages %}
+                <div class="mb-4 rounded-lg p-4 flex items-center {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %}" role="alert">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
         {% endif %}
         
         {% block content %}

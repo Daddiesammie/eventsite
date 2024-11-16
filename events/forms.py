@@ -1,5 +1,5 @@
 from django import forms
-from .models import Event, Ticket
+from .models import Event, Ticket, Profile
 
 class EventForm(forms.ModelForm):
     class Meta:
@@ -30,3 +30,11 @@ class PurchaseTicketForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.ticket = ticket
         self.fields['quantity'].max_value = ticket.available_quantity()
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['avatar', 'bio', 'phone', 'location', 'website']
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 4}),
+        }

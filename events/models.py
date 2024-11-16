@@ -1,6 +1,33 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+User = get_user_model()
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    avatar = models.ImageField(upload_to='profile_pics/', default='default_avatar.png')
+    bio = models.TextField(max_length=500, blank=True)
+    phone = models.CharField(max_length=15, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    website = models.URLField(blank=True)
+    social_links = models.JSONField(default=dict, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    event = models.ForeignKey('Event', on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ['user', 'event']
+
 
 class Event(models.Model):
     STATUS_CHOICES = [

@@ -1,17 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Event List Header -->
-<div class="bg-gradient-to-r from-blue-600 to-indigo-700 py-12 mb-10">
+{# Header Section with Search and Filters #}
+<section class="bg-gradient-to-r from-blue-600 to-indigo-700 py-12 mb-10">
     <div class="container mx-auto px-4">
         <h1 class="text-4xl font-bold text-white mb-4">Discover Events</h1>
+        
+        {# Search and Filter Controls #}
         <div class="flex flex-wrap gap-4 items-center">
+            {# Search Bar #}
             <div class="relative flex-grow max-w-xl">
                 <input type="search" 
                        placeholder="Search events..." 
                        class="w-full px-4 py-3 rounded-lg pl-12 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
             </div>
+            
+            {# Filter Dropdowns #}
             <div class="flex gap-4">
                 <select class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
                     <option>All Categories</option>
@@ -29,99 +34,113 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="container mx-auto px-4 mb-16">
+{# Main Content Section #}
+<main class="container mx-auto px-4 mb-16">
     {% if events %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {% for event in events %}
-        <div class="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300 hover:shadow-xl">
-            <div class="relative">
-                {% if event.image %}
-                <img src="{{ event.image.url }}" 
-                     alt="{{ event.title }}" 
-                     class="w-full h-56 object-cover">
-                {% else %}
-                <div class="w-full h-56 bg-gray-200 flex items-center justify-center">
-                    <i class="fas fa-calendar-alt text-4xl text-gray-400"></i>
-                </div>
-                {% endif %}
-                <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-semibold text-blue-600 shadow">
-                    {{ event.category }}
-                </div>
-            </div>
-            
-            <div class="p-6">
-                <div class="flex items-center mb-4">
-                    <i class="far fa-calendar text-blue-500 mr-2"></i>
-                    <span class="text-sm text-gray-600">{{ event.date|date:"F d, Y" }}</span>
-                    <i class="far fa-clock text-blue-500 ml-4 mr-2"></i>
-                    <span class="text-sm text-gray-600">{{ event.date|date:"g:i A" }}</span>
-                </div>
-                
-                <h2 class="text-xl font-bold mb-3 text-gray-800 hover:text-blue-600 transition">
-                    {{ event.title }}
-                </h2>
-                
-                <p class="text-gray-600 mb-4 line-clamp-2">{{ event.description }}</p>
-                
-                <div class="flex items-center justify-between mt-6">
-                    <div class="flex items-center">
-                        <img src="{{ event.organizer.profile_image|default:'https://via.placeholder.com/40' }}" 
-                             alt="Organizer" 
-                             class="w-8 h-8 rounded-full mr-2">
-                        <span class="text-sm text-gray-600">{{ event.organizer.username }}</span>
+        {# Event Grid #}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for event in events %}
+                <article class="bg-white rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition duration-300 hover:shadow-xl">
+                    {# Event Image #}
+                    <div class="relative">
+                        {% if event.image %}
+                            <img src="{{ event.image.url }}" 
+                                 alt="{{ event.title }}" 
+                                 class="w-full h-56 object-cover">
+                        {% else %}
+                            <div class="w-full h-56 bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-4xl text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                        
+                        {# Category Badge #}
+                        <div class="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-semibold text-blue-600 shadow">
+                            {{ event.category }}
+                        </div>
                     </div>
                     
-                    <a href="{{ event.get_absolute_url }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-                        View Details
-                        <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
+                    {# Event Details #}
+                    <div class="p-6">
+                        {# Date and Time #}
+                        <div class="flex items-center mb-4">
+                            <i class="far fa-calendar text-blue-500 mr-2"></i>
+                            <span class="text-sm text-gray-600">{{ event.date|date:"F d, Y" }}</span>
+                            <i class="far fa-clock text-blue-500 ml-4 mr-2"></i>
+                            <span class="text-sm text-gray-600">{{ event.date|date:"g:i A" }}</span>
+                        </div>
+                        
+                        {# Title and Description #}
+                        <h2 class="text-xl font-bold mb-3 text-gray-800 hover:text-blue-600 transition">
+                            {{ event.title }}
+                        </h2>
+                        <p class="text-gray-600 mb-4 line-clamp-2">{{ event.description }}</p>
+                        
+                        {# Organizer Info #}
+                        <div class="flex items-center mb-4">
+                            {% if event.organizer.profile.avatar %}
+                                <img src="{{ event.organizer.profile.avatar.url }}" 
+                                     alt="Organizer" 
+                                     class="w-8 h-8 rounded-full mr-2 object-cover">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full mr-2 bg-blue-500 flex items-center justify-center text-white">
+                                    {{ event.organizer.username|make_list|first|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="text-sm text-gray-600">{{ event.organizer.username }}</span>
+                        </div>
+                        
+                        {# View Details Button #}
+                        <a href="{{ event.get_absolute_url }}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                            View Details
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        {# Pagination #}
+        {% if is_paginated %}
+            <div class="flex justify-center mt-12">
+                <div class="inline-flex rounded-md shadow">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" 
+                           class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-l-md border hover:bg-gray-50">
+                            Previous
+                        </a>
+                    {% endif %}
+                    
+                    <span class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border-t border-b">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" 
+                           class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-r-md border hover:bg-gray-50">
+                            Next
+                        </a>
+                    {% endif %}
                 </div>
             </div>
-        </div>
-        {% endfor %}
-    </div>
-    
-    <!-- Pagination -->
-    {% if is_paginated %}
-    <div class="flex justify-center mt-12">
-        <div class="inline-flex rounded-md shadow">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" 
-               class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-l-md border hover:bg-gray-50">
-                Previous
-            </a>
-            {% endif %}
-            
-            <span class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border-t border-b">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" 
-               class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-r-md border hover:bg-gray-50">
-                Next
-            </a>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
+        {% endif %}
     
     {% else %}
-    <div class="text-center py-16">
-        <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-2xl font-semibold text-gray-600 mb-2">No Events Found</h3>
-        <p class="text-gray-500 mb-8">There are currently no events available.</p>
-        {% if user.is_authenticated %}
-        <a href="{% url 'events:event_create' %}" 
-           class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-            <i class="fas fa-plus-circle mr-2"></i>
-            Create an Event
-        </a>
-        {% endif %}
-    </div>
+        {# Empty State #}
+        <div class="text-center py-16">
+            <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-semibold text-gray-600 mb-2">No Events Found</h3>
+            <p class="text-gray-500 mb-8">There are currently no events available.</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'events:event_create' %}" 
+                   class="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                    <i class="fas fa-plus-circle mr-2"></i>
+                    Create an Event
+                </a>
+            {% endif %}
+        </div>
     {% endif %}
-</div>
+</main>
 {% endblock %}
