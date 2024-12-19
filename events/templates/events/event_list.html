@@ -4,35 +4,63 @@
 {# Header Section with Search and Filters #}
 <section class="bg-gradient-to-r from-blue-600 to-indigo-700 py-12 mb-10">
     <div class="container mx-auto px-4">
-        <h1 class="text-4xl font-bold text-white mb-4">Discover Events</h1>
+        <h1 class="text-4xl font-bold text-white mb-6">Discover Events</h1>
         
-        {# Search and Filter Controls #}
-        <div class="flex flex-wrap gap-4 items-center">
-            {# Search Bar #}
-            <div class="relative flex-grow max-w-xl">
-                <input type="search" 
-                       placeholder="Search events..." 
-                       class="w-full px-4 py-3 rounded-lg pl-12 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+        <form method="get" class="space-y-4">
+            <div class="flex flex-wrap gap-4">
+                {# Search Bar #}
+                <div class="relative flex-grow max-w-xl">
+                    <input type="search" 
+                           name="q"
+                           value="{{ search_query }}"
+                           placeholder="Search events..." 
+                           class="w-full px-4 py-3 rounded-lg pl-12 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                </div>
+                
+                {# Filter Dropdowns #}
+                <div class="flex flex-wrap gap-4">
+                    <select name="category" 
+                            class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">All Categories</option>
+                        {% for value, label in categories %}
+                            <option value="{{ value }}" 
+                                    {% if value == selected_category %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="date" 
+                            class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">Any Date</option>
+                        {% for date_value, date_label in date_filters %}
+                            <option value="{{ date_value }}" 
+                                    {% if date_value == selected_date %}selected{% endif %}>
+                                {{ date_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <select name="price_range" 
+                            class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="">Any Price</option>
+                        {% for range_value, range_label in price_ranges %}
+                            <option value="{{ range_value }}" 
+                                    {% if range_value == selected_price_range %}selected{% endif %}>
+                                {{ range_label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" 
+                            class="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors duration-300">
+                        <i class="fas fa-filter mr-2"></i>
+                        Apply Filters
+                    </button>
+                </div>
             </div>
-            
-            {# Filter Dropdowns #}
-            <div class="flex gap-4">
-                <select class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <option>All Categories</option>
-                    <option>Music</option>
-                    <option>Sports</option>
-                    <option>Technology</option>
-                    <option>Arts</option>
-                </select>
-                <select class="px-4 py-3 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <option>Date Range</option>
-                    <option>Today</option>
-                    <option>This Week</option>
-                    <option>This Month</option>
-                </select>
-            </div>
-        </div>
+        </form>
     </div>
 </section>
 
@@ -107,7 +135,7 @@
             <div class="flex justify-center mt-12">
                 <div class="inline-flex rounded-md shadow">
                     {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}" 
+                        <a href="?page={{ page_obj.previous_page_number }}&q={{ search_query }}&category={{ selected_category }}&date={{ selected_date }}&price_range={{ selected_price_range }}" 
                            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-l-md border hover:bg-gray-50">
                             Previous
                         </a>
@@ -118,7 +146,7 @@
                     </span>
                     
                     {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}" 
+                        <a href="?page={{ page_obj.next_page_number }}&q={{ search_query }}&category={{ selected_category }}&date={{ selected_date }}&price_range={{ selected_price_range }}" 
                            class="px-4 py-2 text-sm font-medium text-blue-600 bg-white rounded-r-md border hover:bg-gray-50">
                             Next
                         </a>

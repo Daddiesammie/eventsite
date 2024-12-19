@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.db.models import Sum
 from django.views.generic.edit import UpdateView
+from django.db.models import Q
 
 
 import uuid
@@ -39,7 +40,53 @@ class EventListView(ListView):
     paginate_by = 9
 
     def get_queryset(self):
-        return Event.objects.filter(status='approved').order_by('-date')
+        queryset = Event.objects.filter(status='approved')
+        
+        # Get search parameters
+        search_query = self.request.GET.get('q', '')
+        category = self.request.GET.get('category', '')
+        date = self.request.GET.get('date', '')
+        
+        if search_query:
+            queryset = queryset.filter(
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(location__icontains=search_query)
+            )
+        
+        if category:
+            queryset = queryset.filter(category=category)
+            
+        if date:
+            if date == 'today':
+                queryset = queryset.filter(date__date=timezone.now().date())
+            elif date == 'this_week':
+                week_start = timezone.now().date()
+                week_end = week_start + timezone.timedelta(days=7)
+                queryset = queryset.filter(date__date__range=[week_start, week_end])
+            elif date == 'this_month':
+                queryset = queryset.filter(date__month=timezone.now().month)
+                
+        return queryset.order_by('-date')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Convert categories to list of tuples for the template
+        categories = [(cat, cat) for cat in Event.objects.values_list('category', flat=True).distinct()]
+        context.update({
+            'search_query': self.request.GET.get('q', ''),
+            'selected_category': self.request.GET.get('category', ''),
+            'selected_date': self.request.GET.get('date', ''),
+            'categories': categories,
+            'date_filters': [
+                ('today', 'Today'),
+                ('this_week', 'This Week'),
+                ('this_month', 'This Month'),
+            ]
+        })
+        return context
+
+
 
 class EventDetailView(DetailView):
     model = Event
